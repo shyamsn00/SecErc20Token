@@ -23,12 +23,14 @@
 </p>
 <p>The UI is built fully using AntDesign components.</p>
 
-# Building and deploying
-Run <code>npm install</code>.
-Create file <code>.env</code> with appropriate keys-value pairs, corresponding to all keys in <code>.env.req</code>.
-Run <code>truffle migrate --network kovan<code> from the root dir.
-<code>cd</code> to <code>\client</code>.
-Run <code>npm install</code>.
-Run <code>npm start</code>.
+## Building and deploying
 
+<ul>
+<li>Run <code>npm install</code>.
+<li>Create file <code>.env</code> with appropriate keys-value pairs, corresponding to all keys in <code>.env.req</code>.
+<li>Run <code>truffle migrate --network kovan</code> from the root dir.
+<li><code>cd</code> to <code>\client</code>.
+<li>Run <code>npm install</code>.
+<li>Run <code>npm start</code>.
+</ul
 
