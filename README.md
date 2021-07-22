@@ -6,7 +6,7 @@
 
 <p>The smart contract allows users to create a new ERC20 token with a desired, name, symbol and initial supply.</p>
 <p>Note: The contract retains the community-recommended value of 18 for the <code>decimals</code> value.</p>
-<p>I have deployed my ERC20 token smart contract to the Kovan testnet, and it resides at <code></code>, but you can deploy it to any network by adding the desired network to <code>truffle-config.js</code> and modifying the network name during deployment.</p>
+<p>I have deployed my ERC20 token smart contract to the Kovan testnet, and it resides at <code>0x2275b8f83f01034c2dbcb2b2846ee9fd9a6f4290</code>, but you can deploy it to any network by adding the desired network to <code>truffle-config.js</code> and modifying the network name during deployment.</p>
 
 ## Front-end description
 
