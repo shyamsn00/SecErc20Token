@@ -266,9 +266,9 @@ const App = props =>
 		
 	return (
 			drizzleReadinessState.loading ? 
-		
-		"Please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you are allow our web application access to your account." :
-		
+				<Paragraph style={{ padding: "24px", fontSize: "32px"}}><Text type="danger">To be able to use this web application, please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you allow our web application to access your account.</Text> </Paragraph>
+				
+				:		
 				<Layout className="layout">
 					<Header>
 						<Menu theme="dark" mode="horizontal" selectedKeys={location}>
@@ -434,7 +434,6 @@ const App = props =>
 							<Paragraph><Text>The name of the token is </Text><Text strong>{name}. </Text><ReloadOutlined onClick = {getName}/> *</Paragraph>
 							<Paragraph><Text>The symbol of the token is </Text><Text strong>{symbol}. </Text><ReloadOutlined onClick = {getSymbol}/> *</Paragraph>
 							<Paragraph><Text>The number of decimals in the token (ether vs wei) is </Text><Text strong>{decimals}. </Text><ReloadOutlined onClick = {getDecimals}/> *</Paragraph>
-							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC. </Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
 							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC. </Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
 							<Divider></Divider>
 							<Paragraph><Text>* Refetching will not change the values. Functionality provided only for demonstration of capability.</Text></Paragraph>
