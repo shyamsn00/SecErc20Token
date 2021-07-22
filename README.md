@@ -27,7 +27,7 @@
 <ul>
 <li>Run <code>npm install</code>.
 <li>Create file <code>.env</code> with appropriate keys-value pairs, corresponding to all keys in <code>.env.req</code>.
-<li>Run <code>truffle migrate --network kovan<code> from the root dir.
+<li>Run <code>truffle migrate --network kovan</code> from the root dir.
 <li><code>cd</code> to <code>\client</code>.
 <li>Run <code>npm install</code>.
 <li>Run <code>npm start</code>.
