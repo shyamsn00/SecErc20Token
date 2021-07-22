@@ -21,6 +21,7 @@
 		<li>Check allowances
 	</ul>
 </p>
+<p>The UI is built fully using AntDesign components.</p>
 
 # Building and deploying
 Run <code>npm install</code>.

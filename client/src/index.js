@@ -1,4 +1,4 @@
-import React from 'react'; // todo add polyfills for IE?
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -7,7 +7,6 @@ import { BrowserRouter as Router }from 'react-router-dom'
 
 
 // import drizzle functions and contract artifact
-import { DrizzleContext } from '@drizzle/react-plugin' //todo explore
 import { Drizzle } from '@drizzle/store';
 import SEC from "./contracts/SEC.json";
 

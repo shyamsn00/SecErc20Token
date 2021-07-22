@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-import { Layout, Menu, Typography, Form, Input, Button, InputNumber, Modal } from 'antd';
+import { Layout, Menu, Typography, Form, Input, Button, InputNumber, message, Divider } from 'antd';
 import './App.css';
 import { Switch, Route, Link, withRouter } from "react-router-dom"
 import { convertLegacyProps } from 'antd/lib/button/button';
@@ -22,7 +22,13 @@ const App = props =>
 	const [currAddr, setCurrAddr] = useState()
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [location, setLocation] = useState('/');
+	const [sending, setSending] = useState(false);
+	const [transferring, setTransferring] = useState(false);
+	const [approving, setApproving] = useState(false);
 	const { drizzle } = props
+	const [sendForm] = Form.useForm();
+	const [transferForm] = Form.useForm();
+	const [approveForm] = Form.useForm();
 
 	const showModal = () => 
 	{
@@ -37,7 +43,7 @@ const App = props =>
 	const getName = () =>
 	{
 		// const nameKey = drizzle.contracts.SEC.methods.name.cacheCall();
-		// setName(drizzleReadinessState.drizzleState.contracts.SEC.storedData[nameKey].value); //todo check
+		// setName(drizzleReadinessState.drizzleState.contracts.SEC.storedData[nameKey].value); //todo check impl
 		drizzle.contracts.SEC.methods.name().call().then((name) =>
 			{
 				setName(name);							
@@ -71,7 +77,6 @@ const App = props =>
 				drizzleReadinessState.drizzleState.accounts[0]).call().then((balance) =>
 			{
 				setBalance(drizzle.web3.utils.fromWei(balance, 'ether'));		
-				console.log(balance)					
 			})
 
 			break;
@@ -92,7 +97,6 @@ const App = props =>
 			// check to see if it's ready, if so, update local component state
 			if (drizzleState.drizzleStatus.initialized) 
 			{
-				console.log('1')
 				setDrizzleReadinessState({drizzleState: drizzleState, loading: false})
 				getName();
 				getSymbol();
@@ -137,74 +141,117 @@ const App = props =>
 
 	const send = (values) =>
 	{	
-		if(drizzle.web3.utils.isAddress(values.receiver))
+		if(!drizzle.web3.utils.isAddress(values.receiver))
 		{
+			message.warning('The entered address does not seem to be valid.', 5);
+		}
+		else if(values.receiver.toLowerCase() == currAddr.toLowerCase())
+			{
+			message.warning('You are trying to send from and to the same address.', 5);
+		}
+		else
+		{
+			setSending(true);
+		
 			drizzle.contracts.SEC.methods.transfer(values.receiver, drizzle.web3.utils.toWei(values.amount)).send().then(() =>
 			{
-				console.log('sucess');
-			})
-		}
-		
+				setSending(false);
+				message.success('Sent successfully!', 5);
+				sendForm.resetFields();
+			},
+			(e) => sendFailed(e))
+		}		
 	}
 
 	const sendFailed = (e) =>
 	{
-		console.log(e);
+		setSending(false);
+		message.error(e.message + ' Sending failed! Please try again.', 5);
 	}
 
 	const transfer = (values) =>
 	{	
 		if(drizzle.web3.utils.isAddress(values.from) && drizzle.web3.utils.isAddress(values.to))
 		{
+			message.warning('One or both of the entered address does not seem to be valid.', 5);
+		}
+		else if(values.from.toLowerCase() == values.to.toLowerCase())
+		{
+			message.warning('You are trying to send from and to the same address.', 5);
+		}
+		else
+		{
+			setTransferring(true);
+
 			drizzle.contracts.SEC.methods.transferFrom(values.from, values.to, drizzle.web3.utils.toWei(values.amount)).send().then(() =>
 			{
-				console.log('sucess');
-			})
+				setTransferring(false);
+				message.success('Transferred successfully!', 5);
+				transferForm.resetFields();
+			},
+			(e) => transferFailed(e))
 		}		
 	}
 
 	const transferFailed = (e) =>
 	{
-		console.log(e);
+		setTransferring(false);
+		message.error(e.message + ' Transfer failed! Please try again.', 5);
 	}
 
 	const approve = (values) =>
 	{	
 		if(drizzle.web3.utils.isAddress(values.approvee))
 		{
+			message.warning('The entered address does not seem to be valid.', 5);
+		}
+		else if(values.approvee.toLowerCase() == currAddr.toLowerCase())
+		{
+			message.warning('The address to be approved is the same as the logged-in (approving) address.', 5);
+		}
+		else
+		{
+			setApproving(true);
+
 			drizzle.contracts.SEC.methods.approve(values.approvee, drizzle.web3.utils.toWei(values.amount)).send().then(() =>
 			{
-				console.log('sucess');
-			})
+				setApproving(false);
+				message.success('Approved successfully!', 5);
+				approveForm.resetFields();
+			},
+			(e) => approveFailed(e))
 		}		
 	}
 
 	const approveFailed = (e) =>
 	{
-		console.log(e);
+		setApproving(false);
+		message.error(e.message + ' Approval failed! Please try again.', 5);
 	}
 
 	const getAllowance = (values) =>
 	{	
-		if(values.owner == values.approved)
-		{
-			//todo pre check?
-			setAllowance(balance);
-		}
-
 		if(drizzle.web3.utils.isAddress(values.approved))
+		{
+			message.warning('The entered address does not seem to be valid.', 5);
+		}
+		if(values.owner.toLowerCase() == values.approved.toLowerCase())
+		{
+			message.warning('The entered addresses are identical.', 5)
+		}
+		else
 		{
 			drizzle.contracts.SEC.methods.allowance(values.owner, values.approved).call().then((allowance) =>
 			{
-				setAllowance(allowance);
-				console.log(allowance)
-			})
+				setAllowance(drizzle.web3.utils.fromWei(allowance, 'ether'));
+			},
+			(e) => getAllowanceFailed(e))
 		}		
 	}
 
 	const getAllowanceFailed = (e) =>
 	{
-		console.log(e);
+		message.error(e.message + ' Checking failed! Please try again.')
 	}
 
 	const updateLoc = (loc) =>
@@ -218,10 +265,10 @@ const App = props =>
 	}
 		
 	return (
-		// <Router>
 			drizzleReadinessState.loading ? 
-				"Please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you are allow our web application access to your account." 
-				:
+		
+		"Please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you are allow our web application access to your account." :
+		
 				<Layout className="layout">
 					<Header>
 						<Menu theme="dark" mode="horizontal" selectedKeys={location}>
@@ -239,8 +286,7 @@ const App = props =>
 							<Switch>
 								<Route path="/transfer">
 									<Paragraph>
-										<Text>Your SEC balance at the adress {drizzleReadinessState.drizzleState.accounts[0]} is {balance} SEC. </Text><ReloadOutlined 
-											onClick = {getBalance}/>
+								<Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC.</Text><ReloadOutlined onClick = {getBalance}/>
 									</Paragraph>
 									<Title>Send SEC</Title>
 									<Paragraph>
@@ -249,24 +295,26 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="send" labelCol={{ span: 8 }} wrapperCol={
-										{ span: 16 }} onFinish={send} onFinishFailed={sendFailed}>
+								{ span: 16 }} onFinish={send} onFinishFailed={sendFailed} 
+								form={sendForm}>
 										<Form.Item label="Receiver's address" name="receiver" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]}>
-											<Input />
+									<Input disabled={sending} />
 										</Form.Item>
 										<Form.Item label="Amount" name="amount" 
 										rules={[{required: true, message: 'Please enter the amount of SEC you want to send.' }]}>
-											<InputNumber min={0} max={balance} stringMode type="number" />
+									<InputNumber min={0} max={balance} stringMode 
+									type="number" disabled={sending} />
 										</Form.Item>
 										<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-											<Button type="primary" htmlType="submit">Send</Button>
+									<Button type="primary" htmlType="submit" disabled={
+										sending}>{ sending ? "Sending.." : "Send"}</Button>
 										</Form.Item>
 									</Form>
 									<Title>Transfer SEC</Title>
@@ -277,35 +325,33 @@ const App = props =>
 									</Paragraph>
 									<Form name="transfer" labelCol={{ span: 8 }} wrapperCol={
 										{ span: 16 }} onFinish={transfer} onFinishFailed={
-											transferFailed}>
+									transferFailed} form={transferForm}>
 										<Form.Item label="Transfer from" name="from" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]}>
-											<Input />
+									<Input disabled={transferring}/>
 										</Form.Item>
 										<Form.Item label="Transfer to" name="to" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]} extra={'Your address is ' +  drizzleReadinessState.drizzleState.accounts[0] + '.'}>
-											<Input />
+									<Input  disabled={transferring}/>
 										</Form.Item>
 										<Form.Item label="Amount" name="amount" 
 										rules={[{required: true, message: 'Please enter the amount of SEC you want to transfer.' }]}>
-											<InputNumber min={0} max={balance} stringMode type="number" />
+									<InputNumber min={0} max={balance} stringMode type="number" disabled={transferring}/>
 										</Form.Item>
 										<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-											<Button type="primary" htmlType="submit">Send</Button>
+									<Button type="primary" htmlType="submit" disabled={transferring}>{ transferring ? "Transferring.." : "Transfer"}</Button>
 										</Form.Item>
 									</Form>
 								</Route>
@@ -317,24 +363,24 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="approve" labelCol={{ span: 8 }} wrapperCol={
-										{ span: 16 }} onFinish={approve} onFinishFailed={approveFailed}>
+								{ span: 16 }} onFinish={approve} onFinishFailed={
+									approveFailed} form={approveForm}>
 										<Form.Item label="To approve" name="approvee" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]}>
-											<Input />
+									<Input disabled={approving}/>
 										</Form.Item>
 										<Form.Item label="Amount" name="amount" 
 										rules={[{required: true, message: 'Please enter the amount of SEC you want the user to be approved to be able to transfer from your account.' }]}>
-											<InputNumber min={0} max={balance} stringMode type="number" />
+									<InputNumber min={0} max={balance} stringMode type="number" disabled={approving}/>
 										</Form.Item>
 										<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-											<Button type="primary" htmlType="submit">Approve</Button>
+									<Button type="primary" htmlType="submit" disabled={approving}>{ approving ? "Approving.." : "Approve"}</Button>
 										</Form.Item>
 									</Form>
 									<Title>Check allowance</Title>
@@ -348,27 +394,25 @@ const App = props =>
 										<Form.Item label="Owner's address" name="owner" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]} extra={'Your address is ' +  
 											drizzleReadinessState.drizzleState.accounts[0] + '.'}
-											onchange={clearAllowance}>
+									onChange={clearAllowance}>
 											<Input />
 										</Form.Item>
 										<Form.Item label="Approved user's address" name="approved" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
-												console.log(receiver)
 												if(!/^0x[a-fA-F0-9]{40}$/.test(receiver))
 												{
 													return Promise.reject(new Error('Please enter a valid SEC wallet address'))
 												}
 											}}]} extra={'Your address is ' +  
 											drizzleReadinessState.drizzleState.accounts[0] + '.'}
-											onchange={clearAllowance}>
+									onChange={clearAllowance}>
 											<Input />
 										</Form.Item>
 										<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -377,8 +421,8 @@ const App = props =>
 										{
 											allowance 
 											? 
-											<Form.Item label="Plain Text">
-												<span className="ant-form-text">The approved user can transfer {allowance} SEC on behalf of the owner.</span>
+									<Form.Item label="Allowance">
+										<span className="ant-form-text">{allowance} SEC</span>
 											</Form.Item>
 											:
 											null
@@ -387,10 +431,12 @@ const App = props =>
 								</Route>
 								<Route path="/">
 									<Title>SEC Token Details</Title>
-									<Paragraph><Text>The name of the token is {name}. </Text><ReloadOutlined onClick = {getName}/></Paragraph>
-									<Paragraph><Text>The symbol of the token is {symbol}. </Text><ReloadOutlined onClick = {getSymbol}/></Paragraph>
-									<Paragraph><Text>The number of decimals in the token (ether vs wei) is {decimals}. </Text><ReloadOutlined onClick = {getDecimals}/></Paragraph>
-									<Paragraph><Text>Your SEC balance at the adress {drizzleReadinessState.drizzleState.accounts[0]} is {balance} SEC. </Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
+							<Paragraph><Text>The name of the token is </Text><Text strong>{name}. </Text><ReloadOutlined onClick = {getName}/> *</Paragraph>
+							<Paragraph><Text>The symbol of the token is </Text><Text strong>{symbol}. </Text><ReloadOutlined onClick = {getSymbol}/> *</Paragraph>
+							<Paragraph><Text>The number of decimals in the token (ether vs wei) is </Text><Text strong>{decimals}. </Text><ReloadOutlined onClick = {getDecimals}/> *</Paragraph>
+							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC.</Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
+							<Divider></Divider>
+							<Paragraph><Text>* Refetching will not change the values. Functionality provided only for demonstration of capability.</Text></Paragraph>
 								</Route>
 							</Switch>
 						</div>						
@@ -398,8 +444,6 @@ const App = props =>
 					<Footer style={{ textAlign: 'center' }}>Shyam Senthil Nathan for Securrency</Footer>
 				</Layout>
 			
-		// </Router>
-		
 	);
 }
 		
