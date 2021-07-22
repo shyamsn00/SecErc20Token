@@ -40,31 +40,46 @@ const App = props =>
 		window.location.reload();
 	};
 
-	const getName = () =>
+	const getName = (from) =>
 	{
 		// const nameKey = drizzle.contracts.SEC.methods.name.cacheCall();
 		// setName(drizzleReadinessState.drizzleState.contracts.SEC.storedData[nameKey].value); //todo check impl
 		drizzle.contracts.SEC.methods.name().call().then((name) =>
 			{
 				setName(name);							
+
+				if(from != 'init')
+				{
+					message.success('Updated name.', 2);
+				}
 			}
 		)
 	}
 
-	const getSymbol = () =>
+	const getSymbol = (from) =>
 	{
 		drizzle.contracts.SEC.methods.symbol().call().then((symbol) =>
 			{
-				setSymbol(symbol);							
+				setSymbol(symbol);		
+				
+				if(from != 'init')
+				{
+					message.success('Updated symbol.', 2);
+				}
 			}
 		)
 	}
 
-	const getDecimals = () =>
+	const getDecimals = (from) =>
 	{
 		drizzle.contracts.SEC.methods.decimals().call().then((decimals) =>
 			{
-				setDecimals(decimals);							
+				setDecimals(decimals);
+				
+				if(from != 'init')
+				{
+					message.success('Updated decimal count.', 2);
+				}
 			}
 		)
 	}
@@ -76,7 +91,8 @@ const App = props =>
 			drizzle.contracts.SEC.methods.balanceOf(
 				drizzleReadinessState.drizzleState.accounts[0]).call().then((balance) =>
 			{
-				setBalance(drizzle.web3.utils.fromWei(balance, 'ether'));		
+				setBalance(drizzle.web3.utils.fromWei(balance, 'ether'));	
+				message.success('Updated balance.', 2);
 			})
 
 			break;
@@ -98,9 +114,9 @@ const App = props =>
 			if (drizzleState.drizzleStatus.initialized) 
 			{
 				setDrizzleReadinessState({drizzleState: drizzleState, loading: false})
-				getName();
-				getSymbol();
-				getDecimals();	
+				getName('init');
+				getSymbol('init');
+				getDecimals('init');	
 
 				//todo check delay
 				drizzle.contracts.SEC.methods.balanceOf(drizzleState.accounts[0]).call().then(
@@ -178,6 +194,10 @@ const App = props =>
 		else if(values.from.toLowerCase() == values.to.toLowerCase())
 		{
 			message.warning('You are trying to send from and to the same address.', 5);
+		}
+		else if(values.from.toLowerCase() == currAddr.toLowerCase())
+		{
+			message.warning('Use the Send SEC form above to transfer money from the logged-in address.')
 		}
 		else
 		{
@@ -294,8 +314,7 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="send" labelCol={{ span: 8 }} wrapperCol={
-								{ span: 16 }} onFinish={send} onFinishFailed={sendFailed} 
-								form={sendForm}>
+									{ span: 16 }} onFinish={send} form={sendForm}>
 										<Form.Item label="Receiver's address" name="receiver" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
@@ -323,8 +342,7 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="transfer" labelCol={{ span: 8 }} wrapperCol={
-										{ span: 16 }} onFinish={transfer} onFinishFailed={
-									transferFailed} form={transferForm}>
+										{ span: 16 }} onFinish={transfer} form={transferForm}>
 										<Form.Item label="Transfer from" name="from" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
@@ -362,8 +380,7 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="approve" labelCol={{ span: 8 }} wrapperCol={
-								{ span: 16 }} onFinish={approve} onFinishFailed={
-									approveFailed} form={approveForm}>
+								{ span: 16 }} onFinish={approve} form={approveForm}>
 										<Form.Item label="To approve" name="approvee" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
@@ -389,7 +406,7 @@ const App = props =>
 										</Text>
 									</Paragraph>
 									<Form name="allowance" labelCol={{ span: 8 }} wrapperCol={
-										{ span: 16 }} onFinish={getAllowance} onFinishFailed={getAllowanceFailed}>
+										{ span: 16 }} onFinish={getAllowance}>
 										<Form.Item label="Owner's address" name="owner" 
 											rules={[{required: true, validator: async(_, receiver) => 
 											{
