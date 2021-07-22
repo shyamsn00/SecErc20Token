@@ -266,8 +266,7 @@ const App = props =>
 		
 	return (
 			drizzleReadinessState.loading ? 
-				<Paragraph style={{ padding: "24px", fontSize: "32px"}}><Text type="danger">To be able to use this web application, please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you allow our web application to access your account.</Text> </Paragraph>
-				
+				<Paragraph style={{ padding: "24px", fontSize: "32px"}}><Text type="danger">To be able to use this web application, please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you allow our web application to access your account.</Text></Paragraph>
 				:		
 				<Layout className="layout">
 					<Header>
