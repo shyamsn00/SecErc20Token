@@ -22,7 +22,7 @@
 	</ul>
 </p>
 
-# Building and deploying
+## Building and deploying
 Run <code>npm install</code>.
 Create file <code>.env</code> with appropriate keys-value pairs, corresponding to all keys in <code>.env.req</code>.
 Run <code>truffle migrate --network kovan<code> from the root dir.
