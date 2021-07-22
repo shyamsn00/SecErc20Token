@@ -220,7 +220,7 @@ const App = props =>
 	return (
 		// <Router>
 			drizzleReadinessState.loading ? 
-				"Loading Drizzle..." 
+				"Please make sure you are running a web3-compatible browser, or have installed an Ethereum wallet extension to your browser, configured those with your accounts, logged in to you Ethereum wallet, Kovan is set as the Ethereum network, and you are allow our web application access to your account." 
 				:
 				<Layout className="layout">
 					<Header>
