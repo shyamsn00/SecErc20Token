@@ -171,7 +171,7 @@ const App = props =>
 
 	const transfer = (values) =>
 	{	
-		if(drizzle.web3.utils.isAddress(values.from) && drizzle.web3.utils.isAddress(values.to))
+		if(!drizzle.web3.utils.isAddress(values.from) || !drizzle.web3.utils.isAddress(values.to))
 		{
 			message.warning('One or both of the entered address does not seem to be valid.', 5);
 		}
@@ -201,7 +201,7 @@ const App = props =>
 
 	const approve = (values) =>
 	{	
-		if(drizzle.web3.utils.isAddress(values.approvee))
+		if(!drizzle.web3.utils.isAddress(values.approvee))
 		{
 			message.warning('The entered address does not seem to be valid.', 5);
 		}
@@ -231,7 +231,7 @@ const App = props =>
 
 	const getAllowance = (values) =>
 	{	
-		if(drizzle.web3.utils.isAddress(values.approved))
+		if(!drizzle.web3.utils.isAddress(values.owner) || !drizzle.web3.utils.isAddress(values.approved))
 		{
 			message.warning('The entered address does not seem to be valid.', 5);
 		}
@@ -434,7 +434,8 @@ const App = props =>
 							<Paragraph><Text>The name of the token is </Text><Text strong>{name}. </Text><ReloadOutlined onClick = {getName}/> *</Paragraph>
 							<Paragraph><Text>The symbol of the token is </Text><Text strong>{symbol}. </Text><ReloadOutlined onClick = {getSymbol}/> *</Paragraph>
 							<Paragraph><Text>The number of decimals in the token (ether vs wei) is </Text><Text strong>{decimals}. </Text><ReloadOutlined onClick = {getDecimals}/> *</Paragraph>
-							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC.</Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
+							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC. </Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
+							<Paragraph><Text>Your SEC balance at the adress </Text><Text code>{drizzleReadinessState.drizzleState.accounts[0]}</Text><Text> is </Text><Text strong>{balance} SEC. </Text><ReloadOutlined onClick = {getBalance}/></Paragraph>
 							<Divider></Divider>
 							<Paragraph><Text>* Refetching will not change the values. Functionality provided only for demonstration of capability.</Text></Paragraph>
 								</Route>
