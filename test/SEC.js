@@ -1,16 +1,31 @@
-const SEC = artifacts.require('SEC') //todo fix
+const SEC = artifacts.require("SEC");
 
 contract("SEC", accounts => 
 {
-	SECToken = await SEC.deployed("100000000000000000000000")
+	it("should put 100000 * 10 ** 18 SEC in the deployer's account", () =>
+	  SEC.deployed()
+		.then(instance => instance.balanceOf.call(accounts[0]))
+		.then(balance => 
+		{
+			  assert.equal(balance.valueOf(), '100000000000000000000000');
+		})
+	);
 
-	it("should create token with specified name", async () => 
-	{
-		assert.equal(await SECToken.name.call(), 'Securrency')
-	});
+	it("should have the name Securrency", () =>
+	  SEC.deployed()
+		.then(instance => instance.name.call())
+		.then(name => 
+		{
+			  assert.equal(name.valueOf(), 'Securrency');
+		})
+	);
 
-	it("should create token with specified symbol", async () => 
-	{		
-		assert.equal(await SECToken.symbol.call(), 'SEC')
-	});
-});
+	it("should have the symbol SEC", () =>
+	  SEC.deployed()
+		.then(instance => instance.symbol.call())
+		.then(symbol => 
+		{
+			  assert.equal(symbol.valueOf(), 'SEC');
+		})
+	);
+})
